@@ -1,0 +1,27 @@
+{
+  "name": "ezmock-firestore",
+  "version": "1.0.0",
+  "description": "Quick and simple mocking support for firestore",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://aeyriumceo@bitbucket.org/aeyrium/ezmock-firestore.git"
+  },
+  "keywords": [
+    "firestore",
+    "firebase",
+    "database"
+  ],
+  "author": "Rodney Aiglstorfer <rodney@aeyrium.com>",
+  "license": "MIT",
+  "homepage": "https://bitbucket.org/aeyrium/ezmock-firestore#readme",
+  "dependencies": {
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "jest": "^24.5.0"
+  }
+}
