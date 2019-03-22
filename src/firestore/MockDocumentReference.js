@@ -1,4 +1,6 @@
-const assert = require('assert').strict;
+const assert = require('assert');
+const MockDocumentSnapshot = require('./MockDocumentSnapshot');
+const DataSource = require('./DataSource');
 
 /**
  * @module firebase.firestore
@@ -8,8 +10,11 @@ const assert = require('assert').strict;
  */
 function checkPath(documentPath) {
   const path = documentPath.split('/')
-  assert.ok(path.size > 0 && !(path.size%2), `DocumentPath "${documentPath}" is the wrong length`) {
-  return path
+  // assert.ok(path.size > 0 && !(path.size%2), `DocumentPath "${documentPath}" is the wrong length`)
+  if (path.size > 0 && !(path.size%2)) {
+    throw new Error(`DocumentPath "${documentPath}" is the wrong length`);
+  }
+  return path;
 }
 
 class MockDocumentReference {
@@ -18,18 +23,28 @@ class MockDocumentReference {
    * @param {string} rootDir 
    * @param {string} documentPath 
    */
-  constructor(rootDir, documentPath, firestore) {
-    this._rootDir = rootDir
-    this._documentPath = documentPath
-    this._firestore = firestore
+  constructor(documentPath, firestore) {
+    this._documentPath = documentPath;
+    this._firestore = firestore;
+    this._documentId = null;
+    this._collection = null;
+
+    const data = this._documentPath.split('/');
+
+    if (Array.isArray(data)) {
+      this._collection = data[0];
+
+      if (data.length > 1) {
+        this._documentId = data[1];
+      }
+    }
   }
 
   /**
    * @returns {string} The document's identifier within its collection.
    */
   get id() {
-    const path = checkPath(this._documentPath)
-    return path[path.length-1]
+    return this._documentId;
   }
 
   /**
@@ -37,8 +52,7 @@ class MockDocumentReference {
    * DocumentReference belongs to
    */
   get parent() {
-    const path = checkPath(this._documentPath).slice(0, -1)
-    return new MockCollectionReference(this._rootDir, path.join('/'), this._firestore)
+    return null;
   }
   
   /**
@@ -46,7 +60,7 @@ class MockDocumentReference {
    * document, relative to the root of the database.
    */
   get path() {
-    return this._documentPath
+    return this._documentPath;
   }
 
   collection(collectionPath) {
@@ -54,7 +68,7 @@ class MockDocumentReference {
   }
 
   async delete() {
-    return Promise.resolve()
+    return Promise.resolve();
   }
 
   /**
@@ -63,20 +77,28 @@ class MockDocumentReference {
    * @returns {MockQuerySnapshot}
    */
   async get(options) {
-
+    const data = DataSource.find(this._collection, this._documentId);
+    return new MockDocumentSnapshot(this._documentId, data);
   }
 
   onSnapshot() {
-    throw Error('Unsupported Method')
+    throw Error('Unsupported Method');
   }
 
-  async set(data, options) {
+  async set(data, options = {}) {
+    const { merge } = options;
+    const currentDoc = DataSource.find(this._collection, this._documentId);
 
+    if (currentDoc) {
+      DataSource.update(this._documentId,  this._collection, data, merge);
+    } else {
+      const id = DataSource.add(this._collection, data, this._documentId);
+    }
   }
 
-  async update(...var_args) {
-
+  async update(data) {
+    DataSource.update(this._documentId, this._collection, data, true);
   }
 }
 
-module.export = MockDocumentReference
+module.exports = MockDocumentReference

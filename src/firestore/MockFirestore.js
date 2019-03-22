@@ -1,10 +1,11 @@
-const fs = require('fs')
+const MockDocumentReference = require('./MockDocumentReference');
+const MockCollectionReference = require('./MockCollectionReference');
 
 /**
  * @module firebase.firestore
  * @class MockFirestore
  */
-module.export = class {
+module.exports = class MockFirestore {
 
   constructor(rootDir) {
     this._rootDir = rootDir
@@ -22,7 +23,7 @@ module.export = class {
    * that refers to the document at the specified path.
    */
   doc(documentPath) {
-    return new MockDocumentReference(this._rootDir, documentPath, this)
+    return new MockDocumentReference(documentPath, this)
   }
 
   /**
@@ -33,7 +34,7 @@ module.export = class {
    * to the collection at the specified path.
    */
   collection(collectionPath) {
-    return new MockCollectionReference(this._rootDir, collectionPath, this)
+    return new MockCollectionReference(collectionPath, this)
   }
 
   /**
@@ -83,6 +84,4 @@ module.export = class {
   settings(settings) {
     /* Ignored */
   }
-
 }
-

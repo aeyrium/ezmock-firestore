@@ -1,38 +1,24 @@
-/**
- * @module firebase.firestore
- * Validates that the path is correctly formatted and return it in array format
- * @param {string} documentPath 
- * @returns {Array<string>} the path converted to array
- */
-function checkPath(collectionPath) {
-  const path = collectionPath.split('/')
-  assert.ok(path.size > 0 && (path.size%2), `CollectionPath "${collectionPath}" is the wrong length`) {
-  return path
-}
+const DataSource = require('./DataSource');
+const MockDocumentReference = require('./MockDocumentReference');
+const MockQuerySnapshot = require('./MockQuerySnapshot');
 
-class MockCollectionReference extends MockQuery{
-  constructor(rootDir, collectionPath, firestore) {
-    this._rootDir = rootDir
-    this._collectionPath = collectionPath
-    this._firestore = firestore
+class MockCollectionReference {
+  constructor(collectionPath, firestore) {
+    this._collectionPath = collectionPath;
+    this._firestore = firestore;
+    this._where = []; // Array of filters
   }
 
   get firestore() {
-    return this._firestore
+    return this._firestore;
   }
 
   get id() {
-    const path = checkPath(this._documentPath)
-    return path[path.length-1]
+    return null;
   }
 
-  /**
-   * @returns {MockDocumentReference} A reference to the containing 
-   * DocumentReference if this is a subcollection. If this isn't a 
-   * subcollection, the reference is null.
-   */
   get parent() {
-    return this._parent
+    return null;
   }
 
   /**
@@ -44,7 +30,10 @@ class MockCollectionReference extends MockQuery{
    * been written to the backend.
    */
   async add(data) {
-
+    const autoId = DataSource.add(this._collectionPath, data);
+    const path = `${this._collectionPath}/${autoId}`;
+    
+    return new MockDocumentReference(path);
   }
 
   /**
@@ -55,7 +44,8 @@ class MockCollectionReference extends MockQuery{
    * @returns {Promise<MockDocumentReference>}
    */
   doc(documentPath) {
-
+    const path = `${this._collectionPath}/${documentPath}`;
+    return new MockDocumentReference(path);
   }
 
   endAt() {
@@ -73,7 +63,11 @@ class MockCollectionReference extends MockQuery{
    * the results of the query.
    */
   async get(options = {}) {
+    // TOOD: use this._where options!
+    const docs = DataSource.filter(this._collectionPath, this._where);
 
+    console.log('docs', docs);
+    return new MockQuerySnapshot(docs);
   }
   
   isEqual(other) {
@@ -117,7 +111,12 @@ class MockCollectionReference extends MockQuery{
    * @returns MockQuery
    */
   where(fieldPath, opStr, value) {
-
+    this._where.push({
+      fieldPath,
+      opStr,
+      value,
+    });
   }
+}
 
-  module.export = MockCollectionReference
+module.exports = MockCollectionReference
