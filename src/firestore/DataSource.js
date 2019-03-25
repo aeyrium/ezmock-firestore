@@ -158,8 +158,22 @@ class DataSource {
     }
   }
 
-  preload(model, data) {
-    this.collection[model] = data;
+  preload(model, data = []) {
+    if (!Array.isArray(data)) {
+      return;
+    }
+
+    const dataWithIds = data.map((item) => {
+      const propsToAdd = {};
+
+      if (!item.__id) {
+        propsToAdd.__id = uuid.v4();
+      }
+
+      return Object.assign({}, item, propsToAdd);
+    });
+
+    this.collection[model] = dataWithIds;
   }
 }
 

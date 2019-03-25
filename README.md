@@ -13,6 +13,7 @@ const db = firebase.firestore();
 ## Prepopulating Data for Tests
 If you want to preload data for your tests you use `preload` in the `before` hook of your test suite. The first parameter is the model to load and the second one is the data.
 
+
 ```
 const firebase = require('ezmock-firebase);
 const db = firebase.firestore();
@@ -22,12 +23,31 @@ db.preload('People', data);
 ```
 
 Works with subcollections as well
+
 ```
 const firebase = require('ezmock-firebase);
 const db = firebase.firestore();
 const cardData = []; // an array of card data for that specific subcollection.
 
 db.preload('People/id101/cards', cardData)
+```
+
+To set a specific `id` for the preloaded data, set the `__id` property with the ID to be used. If not given, an auto id will be generated
+
+With customm ids
+
+```
+const data = [{
+  name: 'John Doe',
+  __id: 'mycustomID,
+}]
+
+db.preload('People', data);
+
+// This equals to
+db.doc('People/mycustomID').set({
+
+});
 ```
 
 Also you simply do a firebase `add` or `set`
