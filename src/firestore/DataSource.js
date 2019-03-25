@@ -150,6 +150,20 @@ class DataSource {
     return document;
   }
 
+  delete(id, model) {
+    const collection = this.collection[model];
+
+    if (!Array.isArray(collection)) {
+      return null;
+    }
+
+    const index = collection.findIndex(item => item.__id === id);
+
+    if (index !== -1) {
+      collection.splice(index, 1);
+    }
+  }
+
   flush(model) {
     if (model) {
       this.collection[model] = [];

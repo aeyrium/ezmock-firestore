@@ -205,6 +205,10 @@ class MockDocumentReference {
   async update(data) {
     DataSource.update(this._documentId, this._collection, data, true);
   }
+
+  async delete() {
+    DataSource.delete(this._documentId, this._collection);
+  }
 }
 
 module.exports = {
