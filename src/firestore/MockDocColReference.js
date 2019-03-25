@@ -1,12 +1,13 @@
 const DataSource = require('./DataSource');
-const MockDocumentReference = require('./MockDocumentReference');
 const MockQuerySnapshot = require('./MockQuerySnapshot');
+const MockDocumentSnapshot = require('./MockDocumentSnapshot');
 
 class MockCollectionReference {
   constructor(collectionPath, firestore) {
     this._collectionPath = collectionPath;
     this._firestore = firestore;
     this._where = []; // Array of filters
+    this._orderBy = []; // Array of sorting
   }
 
   get firestore() {
@@ -63,10 +64,8 @@ class MockCollectionReference {
    * the results of the query.
    */
   async get(options = {}) {
-    // TOOD: use this._where options!
-    const docs = DataSource.filter(this._collectionPath, this._where);
+    const docs = DataSource.filter(this._collectionPath, this._where, this._orderBy);
 
-    console.log('docs', docs);
     return new MockQuerySnapshot(docs);
   }
   
@@ -80,7 +79,7 @@ class MockCollectionReference {
    * @param {Number} limit 
    */
   limit(limit) {
-    return this
+    return this;
   }
   
   onSnapshot() {
@@ -91,10 +90,15 @@ class MockCollectionReference {
    * Creates a new query where the results are sorted by the specified field, 
    * in descending or ascending order.
    * @param {*} fieldPath 
-   * @param {*} diretionStr 
+   * @param {*} directionStr 
    */
-  orderBy(fieldPath, diretionStr) {
+  orderBy(fieldPath, directionStr) {
+    this._orderBy.push({
+      fieldPath,
+      directionStr,
+    });
 
+    return this;
   }
 
   startAt() {
@@ -116,7 +120,94 @@ class MockCollectionReference {
       opStr,
       value,
     });
+
+    return this;
   }
 }
 
-module.exports = MockCollectionReference
+class MockDocumentReference {
+  /**
+   * 
+   * @param {string} rootDir 
+   * @param {string} documentPath 
+   */
+  constructor(documentPath, firestore) {
+    this._documentPath = documentPath;
+    this._firestore = firestore;
+    this._documentId = null;
+    this._collection = null;
+
+    const index = this._documentPath.lastIndexOf('/');
+
+    if (index !== -1) {
+      this._collection = this._documentPath.substr(0, index);
+      this._documentId = this._documentPath.substr(index + 1);
+    }
+  }
+
+  /**
+   * @returns {string} The document's identifier within its collection.
+   */
+  get id() {
+    return this._documentId;
+  }
+
+  /**
+   * @returns {MockCollectionReference} The Collection this 
+   * DocumentReference belongs to
+   */
+  get parent() {
+    return null;
+  }
+  
+  /**
+   * @returns {string} A string representing the path of the referenced 
+   * document, relative to the root of the database.
+   */
+  get path() {
+    return this._documentPath;
+  }
+
+  collection(collectionPath) {
+    const path = `${this._documentPath}/${collectionPath}`;
+    return new MockCollectionReference(path, this._firestore);
+  }
+
+  async delete() {
+    return Promise.resolve();
+  }
+
+  /**
+   * Executes the query and returns the results as a QuerySnapshot.
+   * @param {Object} options 
+   * @returns {MockQuerySnapshot}
+   */
+  async get(options) {
+    const data = DataSource.find(this._collection, this._documentId);
+    return new MockDocumentSnapshot(this._documentId, data);
+  }
+
+  onSnapshot() {
+    throw Error('Unsupported Method');
+  }
+
+  async set(data, options = {}) {
+    const { merge } = options;
+    const currentDoc = DataSource.find(this._collection, this._documentId);
+
+    if (currentDoc) {
+      DataSource.update(this._documentId,  this._collection, data, merge);
+    } else {
+      DataSource.add(this._collection, data, this._documentId);
+    }
+  }
+
+  async update(data) {
+    DataSource.update(this._documentId, this._collection, data, true);
+  }
+}
+
+module.exports = {
+  MockCollectionReference,
+  MockDocumentReference,
+};

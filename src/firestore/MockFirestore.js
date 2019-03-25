@@ -1,12 +1,11 @@
-const MockDocumentReference = require('./MockDocumentReference');
-const MockCollectionReference = require('./MockCollectionReference');
+const { MockDocumentReference, MockCollectionReference } = require('./MockDocColReference');
+const DataSource = require('./DataSource');
 
 /**
  * @module firebase.firestore
  * @class MockFirestore
  */
 module.exports = class MockFirestore {
-
   constructor(rootDir) {
     this._rootDir = rootDir
   }
@@ -83,5 +82,13 @@ module.exports = class MockFirestore {
 
   settings(settings) {
     /* Ignored */
+  }
+
+  flush() {
+    DataSource.flush();
+  }
+
+  preload(model, data) {
+    DataSource.preload(model, data);
   }
 }
