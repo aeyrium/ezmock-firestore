@@ -13,7 +13,7 @@ const applyWhere = (data, condition, compareValue) => {
     case '>':
       return data > compareValue;
     case 'array-contains':
-      return compareValue.indexOf(data) !== -1;
+      return data.indexOf(compareValue) !== -1;
   }
 }
 
