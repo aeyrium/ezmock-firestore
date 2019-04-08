@@ -1,5 +1,6 @@
 const { MockDocumentReference, MockCollectionReference } = require('./MockDocColReference');
 const DataSource = require('./DataSource');
+const MockTimestamp = require('./MockTimestamp')
 
 /**
  * @module firebase.firestore
@@ -90,5 +91,9 @@ module.exports = class MockFirestore {
 
   preload(model, data) {
     DataSource.preload(model, data);
+  }
+
+  get Timestamp() {
+    return MockTimestamp;
   }
 }

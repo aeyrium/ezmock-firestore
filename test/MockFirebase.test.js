@@ -180,3 +180,9 @@ it('should filter and sort a collection', async () => {
   expect(querySnap.docs[0].data().tailNumber).toEqual('BBB222');
   expect(querySnap.docs[1].data().tailNumber).toEqual('AAA111');
 });
+
+it('should create a Timestamp instance from Date', () => {
+  const tstamp = firebase.firestore().Timestamp.fromDate(new Date('2019-01-01T00:00:00Z'))
+  expect(tstamp.seconds).toBe(1546300800)
+  expect(tstamp.nanoseconds).toBe(0)
+})
