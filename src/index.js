@@ -1,24 +1,25 @@
 const MockFirestore = require('./firestore/MockFirestore')
 
+let _rootDir
+
+function firestore() {
+  firestore.Timestamp = require('./firestore/MockTimestamp')
+  return new MockFirestore(_rootDir)
+}
+
 /**
  * @module firebase
  */
 class MockFirebase {
   constructor() {
+    this.firestore = firestore
   }
 
   initializeApp(options = {}, name = "default") {
-    this._rootDir = (options.rootDir)? `${options.rootDir}/data` : `${process.cwd}/data`
-    if (fs.existsSync(this._rootDir) == false) {
-      fs.mkdirSync(this._rootDir, {recursive: true})
+    _rootDir = (options.rootDir) ? `${options.rootDir}/data` : `${process.cwd}/data`
+    if (fs.existsSync(_rootDir) == false) {
+      fs.mkdirSync(_rootDir, { recursive: true })
     }
-  }
-
-  /**
-   * @returns {MockFirestore}
-   */
-  firestore() {
-    return new MockFirestore(this._rootDir)
   }
 }
 

@@ -1,5 +1,10 @@
 const firebase = require('../src');
 
+it('should return Timestamp', () => {
+  const tstamp = firebase.firestore.Timestamp
+  expect(tstamp).not.toBeNull()
+})
+
 it('should add a document', async () => {
   const docRef = await firebase.firestore().collection('Aircraft').add({
     tailNumber: 'BBB222',
