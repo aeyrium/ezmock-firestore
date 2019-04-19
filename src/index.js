@@ -3,7 +3,6 @@ const MockFirestore = require('./firestore/MockFirestore')
 let _rootDir
 
 function firestore() {
-  firestore.Timestamp = require('./firestore/MockTimestamp')
   return new MockFirestore(_rootDir)
 }
 
@@ -12,6 +11,7 @@ function firestore() {
  */
 class MockFirebase {
   constructor() {
+    firestore.Timestamp = require('./firestore/MockTimestamp')
     this.firestore = firestore
   }
 
