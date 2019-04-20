@@ -187,7 +187,26 @@ it('should filter and sort a collection', async () => {
 });
 
 it('should create a Timestamp instance from Date', () => {
-  const tstamp = firebase.firestore().Timestamp.fromDate(new Date('2019-01-01T00:00:00Z'))
+  const tstamp = firebase.firestore.Timestamp.fromDate(new Date('2019-01-01T00:00:00Z'))
   expect(tstamp.seconds).toBe(1546300800)
   expect(tstamp.nanoseconds).toBe(0)
+})
+
+it('should save with a Timestamp property', async () => {
+  const tstamp = firebase.firestore.Timestamp.fromDate(new Date('2019-01-01T00:00:00Z'))
+
+  const docRef = await firebase.firestore().collection('Networth').add({
+    name: 'Yo-Yo Ma',
+    networth: 5000000,
+    when: tstamp
+  })
+
+  const snap = await firebase.firestore().doc(docRef.path).get()
+
+  expect(snap.exists).toEqual(true)
+  expect(snap.id).toEqual(docRef.id)
+  expect(snap.data().name).toEqual('Yo-Yo Ma')
+  expect(snap.data().networth).toEqual(5000000)
+  expect(snap.data().when.seconds).toEqual(tstamp.seconds)
+  expect(snap.data().when.nanoseconds).toEqual(tstamp.nanoseconds)
 })
