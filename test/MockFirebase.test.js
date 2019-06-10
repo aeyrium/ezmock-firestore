@@ -192,6 +192,25 @@ it('should create a Timestamp instance from Date', () => {
   expect(tstamp.nanoseconds).toBe(0)
 })
 
+it('should save with a DocumentReference property', async () => {
+  var aRef = await firebase.firestore().collection('Authors').add({
+    name: 'Author A'
+  })
+  var bRef = await firebase.firestore().collection('Books').add({
+    title: 'Book Title Here',
+    author: aRef,
+  })
+
+  var bSnap = await bRef.get()
+  expect(bSnap.data().author).not.toBeNull
+  expect(bSnap.data().author.id).toEqual(aRef.id);
+  expect(bSnap.data().author.path).toEqual(aRef.path);
+
+  var aSnap = await bSnap.data().author.get()
+  expect(aSnap.exists).toEqual(true)
+  expect(aSnap.data().name).toEqual('Author A')
+})
+
 it('should save with a Timestamp property', async () => {
   const tstamp = firebase.firestore.Timestamp.fromDate(new Date('2019-01-01T00:00:00Z'))
 
