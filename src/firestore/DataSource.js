@@ -139,15 +139,17 @@ class DataSource {
       return null; // or throw error?
     }
 
-    let document = collection.find(item => item.__id === id);
+    const index = collection.findIndex(item => item.__id === id);
 
-    if (merge) {
-      document = Object.assign(document, value);
-    } else {
-      document = value;
+    if (index > -1) {
+      if (merge) {
+        this.collection[model][index] = Object.assign(this.collection[model][index], value);
+      } else {
+        this.collection[model][index] = value;
+      }
     }
 
-    return document;
+    return this.collection[model][index];
   }
 
   delete(id, model) {
