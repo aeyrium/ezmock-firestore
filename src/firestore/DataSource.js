@@ -145,7 +145,7 @@ class DataSource {
       if (merge) {
         this.collection[model][index] = Object.assign(this.collection[model][index], value);
       } else {
-        this.collection[model][index] = value;
+        this.collection[model][index] = Object.assign({ __id: this.collection[model][index].__id}, value);
       }
     }
 
